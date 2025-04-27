@@ -1,52 +1,111 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 40px;
+  max-width: 600px;
+  margin: auto;
 }
 
 h1 {
   text-align: center;
-  margin-top: 20px;
+  color: #2d3436;
+  margin-bottom: 30px;
 }
 
-form {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-input {
+#taskInput {
+  width: 70%;
   padding: 10px;
-  width: 80%;
-  margin-right: 10px;
+  border: 1px solid #dfe6e9;
+  border-radius: 5px;
   font-size: 16px;
 }
 
 button {
   padding: 10px 20px;
+  border: none;
+  background-color: #0984e3;
+  color: white;
   font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
 }
 
-ul {
-  list-style-type: none;
+button:hover {
+  background-color: #74b9ff;
+}
+
+ul#taskList {
+  list-style: none;
   padding: 0;
-  width: 80%;
-  margin: 0 auto;
+  margin-top: 30px;
 }
 
 li {
-  background-color: #fff;
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
+  background: #ffffff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 16px;
 }
 
-button {
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
+/* Couleurs selon statut */
+.pending {
+  border-left: 6px solid #fdcb6e; /* jaune */
 }
+
+.done {
+  border-left: 6px solid #00b894; /* vert */
+}
+
+.mark-done-btn {
+  background-color: #00b894;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.mark-done-btn:hover {
+  background-color: #55efc4;
+}
+
+li.done {
+  background-color: #55efc4; /* Vert clair */
+  color: #2d3436;
+  text-decoration: line-through; /* Barre sur le texte */
+  transform: translateY(30px); /* Déplacement vers le bas */
+  opacity: 0.7; /* Légèrement transparent pour un effet "fini" */
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/* Si la tâche n'est pas encore marquée comme 'done' */
+li.pending {
+  transition: transform 0.5s ease;
+}
+
+.delete-btn {
+  background-color: #e74c3c; /* Rouge pour la suppression */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #ff6347; /* Couleur plus claire quand on survole */
+}
+

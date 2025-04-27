@@ -1,72 +1,125 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const taskForm = document.getElementById("task-form");
-  const taskTitle = document.getElementById("task-title");
-  const taskList = document.getElementById("task-list");
+// Ajouter une task
+function addTask(title) {
+  fetch("php/add-task.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "title=" + encodeURIComponent(title),
+  })
+    .then((response) => response.text())
+    .then((data) => {
+      console.log(data);
+      loadTasks(); // Recharger la liste
+    });
+}
 
-  // Charger les tâches existantes
-  fetchTasks();
-
-  taskForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    addTask(taskTitle.value);
-    taskTitle.value = "";
-  });
-
-  function fetchTasks() {
-    fetch("php/get-tasks.php")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur de serveur");
+// Charger toutes les tasks
+function loadTasks() {
+  fetch("php/get-tasks.php")
+    .then((response) => response.json())
+    .then((tasks) => {
+      // Trier les tâches : les "Terminé" en bas
+      tasks.sort((a, b) => {
+        if (a.status === "done" && b.status !== "done") {
+          return 1;
+        } else if (a.status !== "done" && b.status === "done") {
+          return -1;
         }
-        return response.json();
-      })
-      .then((data) => {
-        taskList.innerHTML = "";
-        data.forEach((task) => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-                    <span style="text-decoration: ${
-                      task.status === "terminée" ? "line-through" : "none"
-                    }">
-                        ${task.title}
-                    </span>
-                    <button onclick="toggleStatus(${task.id}, '${
-            task.status
-          }')">
-                        ${task.status === "en cours" ? "Terminer" : "Reprendre"}
-                    </button>
-                    <button onclick="deleteTask(${task.id})">Supprimer</button>
-                `;
-          taskList.appendChild(li);
-        });
-      })
-      .catch((error) => {
-        console.error("Erreur de récupération des tâches:", error);
+        return 0;
       });
+
+      const list = document.getElementById("taskList");
+      list.innerHTML = ""; // Réinitialise la liste
+
+      tasks.forEach((task) => {
+        const li = document.createElement("li");
+
+        let statusText = "";
+        if (task.status === "pending") {
+          statusText = "À faire";
+          li.className = "pending";
+        } else if (task.status === "done") {
+          statusText = "Terminé";
+          li.className = "done";
+        } else {
+          statusText = task.status;
+        }
+
+        li.innerText = task.title + " - " + statusText;
+
+        // Créer le bouton "Marquer comme Terminé" seulement pour les tâches à faire
+        if (task.status === "pending") {
+          const button = document.createElement("button");
+          button.innerText = "Marquer comme Terminé";
+          button.className = "mark-done-btn";
+          button.addEventListener("click", function () {
+            markAsDone(task.id, li);
+          });
+
+          li.appendChild(button);
+        }
+
+        // Créer le bouton "Supprimer"
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Supprimer";
+        deleteButton.className = "delete-btn";
+        deleteButton.addEventListener("click", function () {
+          deleteTask(task.id, li);
+        });
+
+        li.appendChild(deleteButton);
+        list.appendChild(li);
+      });
+    })
+    .catch((error) => {
+      console.error("Erreur lors du chargement des tâches:", error);
+    });
+}
+
+function submitTask() {
+  const input = document.getElementById("taskInput");
+  const title = input.value.trim();
+  if (title !== "") {
+    addTask(title);
+    input.value = ""; // Reset le champ input
   }
+}
 
-  function addTask(title) {
-    fetch("php/add-task.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `title=${encodeURIComponent(title)}`,
-    }).then(fetchTasks);
-  }
+function markAsDone(taskId, liElement) {
+  fetch("php/update-task.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "id=" + encodeURIComponent(taskId),
+  })
+    .then((response) => response.text())
+    .then((data) => {
+      console.log(data);
 
-  window.toggleStatus = function (id, currentStatus) {
-    const newStatus = currentStatus === "en cours" ? "terminée" : "en cours";
-    fetch("php/update-task.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `id=${id}&status=${newStatus}`,
-    }).then(fetchTasks);
-  };
+      // Met à jour le statut de la tâche dans le DOM pour la rendre verte et déplacée
+      liElement.classList.remove("pending");
+      liElement.classList.add("done");
 
-  window.deleteTask = function (id) {
-    fetch("php/delete-task.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `id=${id}`,
-    }).then(fetchTasks);
-  };
-});
+      // Déplace la tâche en bas de la liste
+      const list = document.getElementById("taskList");
+      list.appendChild(liElement);
+    });
+}
+
+function deleteTask(taskId, liElement) {
+  fetch("php/delete-task.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "id=" + encodeURIComponent(taskId),
+  })
+    .then((response) => response.text())
+    .then((data) => {
+      console.log(data);
+      // Supprimer la tâche de l'interface
+      liElement.remove();
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la suppression de la tâche:", error);
+    });
+}
+
+// À l'initialisation
+loadTasks();

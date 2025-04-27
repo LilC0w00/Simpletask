@@ -12,14 +12,13 @@
 </head>
 <body>
   
-  <h1>Mes tâches</h1>
 
-  <form id="task-form">
-    <input type="text" id="task-title" placeholder="Ajouter une tâche" required>
-    <button type="submit">Ajouter</button>
-  </form>
+  <h1>Mes Tâches</h1>
 
-  <ul id="task-list"></ul>
+  <input type="text" id="taskInput" placeholder="Écrire une nouvelle tâche...">
+  <button onclick="submitTask()">Ajouter</button>
+
+  <ul id="taskList"></ul>
   <!-- SCRIPT -->
   <script src="js/script.js"></script>
 </body>
